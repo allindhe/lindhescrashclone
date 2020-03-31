@@ -1,8 +1,8 @@
 // IMPORTS
-import {CONSTANTS} from "/static/js/constants.js";
-import {makeGrid} from "/static/js/map.js";
-import {Player} from "/static/js/player.js";
-import {Bot} from "/static/js/bot.js";
+import {CONSTANTS} from "/scripts/constants.js";
+import {makeGrid} from "/scripts/map.js";
+import {Player} from "/scripts/player.js";
+import {Bot} from "/scripts/bot.js";
 
 // GLOBALS
 let grid;

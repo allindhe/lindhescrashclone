@@ -1,0 +1,23 @@
+{
+  "name": "crash",
+  "version": "1.0.0",
+  "description": "Lindhe's crash clone!",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/allindhe/lindhescrashclone.git"
+  },
+  "author": "Alexander Lindhe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/allindhe/lindhescrashclone/issues"
+  },
+  "homepage": "https://github.com/allindhe/lindhescrashclone#readme",
+  "dependencies": {
+    "ejs": "^3.0.2",
+    "express": "^4.17.1"
+  }
+}
