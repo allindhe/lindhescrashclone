@@ -1,0 +1,17 @@
+body{
+    background-color: #3F4859;
+}
+div{
+    margin: auto;
+}
+
+h1{
+    color: #FFFFFF;
+    text-align: center;
+}
+
+#gameCanvas{
+    background-color: #0C0D0B;
+    margin: auto;
+    display: block;
+}
