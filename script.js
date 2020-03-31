@@ -1,12 +1,14 @@
 // IMPORTS
-import {CONSTANTS} from "/js/constants.js";
-import {makeGrid} from "/js/map.js";
-import {Player} from "/js/player.js";
+import {CONSTANTS} from "/static/js/constants.js";
+import {makeGrid} from "/static/js/map.js";
+import {Player} from "/static/js/player.js";
+import {Bot} from "/static/js/bot.js";
 
 // GLOBALS
 let grid;
 let p1;
 let p2;
+let bot
 let fpsInterval;
 let then;
 let now;
@@ -88,6 +90,7 @@ function init(){
     grid = makeGrid();
     p1 = new Player(100, 100, "#C2010E", "#C2010E");
     p2 = new Player(700, 500, "#6E9B29", "#6E9B29");
+    bot = new Bot();
     grid[p1.x_pixel][p1.y_pixel].isWall = true;
     grid[p2.x_pixel][p2.y_pixel].isWall = true;
     p1.draw(ctx);
@@ -128,111 +131,3 @@ window.addEventListener("keyup", (e) =>{
         startNewGame();
     }
 })
-
-class Bot{
-    constructor(){
-        this.crash_evaluations = 10;
-        this.randomness = 0.10;
-    }
-
-    botMove(grid, p2){
-        let next_coords;
-        let dir = p2.direction;
-        let willTurn = false;
-
-        // Evaluate if we need to turn to avoid a crash
-        for(let i = 0; i < this.crash_evaluations; i++){
-            next_coords = this.getNextCoordinates(dir);
-        
-            if(this.goingToCrash(grid, next_coords)){
-                dir = this.randomDirection();
-                willTurn = true;
-            } else{
-                console.log(i)
-                break;
-            }
-        }
-
-        // If not turning to not crash, have a chance to turn randomly
-        if (willTurn == false){
-            let rand_num = Math.random();
-            if (rand_num < this.randomness){
-                // Turn randomly if it does not result in a crash
-                dir = this.randomDirection();
-                if (this.goingToCrash(grid, this.getNextCoordinates(dir)) == false){
-                    willTurn = true;
-                }
-            }
-        }
-
-        if (willTurn){
-            this.turn(dir);
-        }
-    }
-
-    getNextCoordinates(dir){
-        let next_coords = {};
-
-        switch(dir){
-            case CONSTANTS.DIRECTIONS.UP:
-                next_coords.x = p2.x_pixel;
-                next_coords.y = p2.y_pixel - 1;
-                break;
-            case CONSTANTS.DIRECTIONS.RIGHT:
-                next_coords.x = p2.x_pixel + 1
-                next_coords.y = p2.y_pixel
-                break;
-            case CONSTANTS.DIRECTIONS.DOWN:
-                next_coords.x = p2.x_pixel
-                next_coords.y = p2.y_pixel + 1
-                break;
-            case CONSTANTS.DIRECTIONS.LEFT:
-                next_coords.x = p2.x_pixel - 1
-                next_coords.y = p2.y_pixel
-                break;
-        }
-
-        return next_coords
-    }
-
-    goingToCrash(grid, next_coords){
-        if (next_coords.x < 0 || next_coords.x >= CONSTANTS.WIDTH_CELLS){
-            return true;
-        } else if (next_coords.y < 0 || next_coords.y >= CONSTANTS.HEIGHT_CELLS){
-            return true;
-        } else if (grid[next_coords.x][next_coords.y].isWall){
-            return true
-        }
-        return false;
-    }
-
-    randomDirection(){
-        let rand_num = Math.floor(Math.random() * 4);
-        switch(rand_num){
-            case 0:
-                return CONSTANTS.DIRECTIONS.UP;
-            case 1:
-                return CONSTANTS.DIRECTIONS.RIGHT;
-            case 2:
-                return CONSTANTS.DIRECTIONS.DOWN;
-            case 3:
-                return CONSTANTS.DIRECTIONS.LEFT;
-        }
-    }
-
-    turn(dir){
-        switch(dir){
-            case CONSTANTS.DIRECTIONS.UP:
-                return p2.turnUp();
-            case CONSTANTS.DIRECTIONS.RIGHT:
-                return p2.turnRight();
-            case CONSTANTS.DIRECTIONS.DOWN:
-                return p2.turnDown();
-            case CONSTANTS.DIRECTIONS.LEFT:
-                return p2.turnLeft();
-        }
-    }
-}
-
-init();
-let bot = new Bot(grid, p2);
