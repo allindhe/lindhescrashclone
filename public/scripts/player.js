@@ -1,38 +1,45 @@
 import {CONSTANTS} from "./constants.js";
 
 class Player{
-    constructor(x, y, playerColor, lineColor){
+    constructor(playerName, x, y, primaryColor, secondaryColor, controlledByBot=false){
+        this.playerName = playerName;
+        this.isDead = false;
+        
         this.x = x;
         this.y = y;
         this.x_pixel = this.x / CONSTANTS.PIXEL;
         this.y_pixel = this.y / CONSTANTS.PIXEL;
+        this.previousPosition = null;
 
         this.speed = 1 * CONSTANTS.PIXEL;
         this.direction = this.startDirection();
-        this.playerColor = playerColor;
-        this.lineColor = lineColor;
+        this.requestedDirection = this.direction
+        this.previousDirection = this.direction;
 
-        this.previousPosition = null;
+        this.primaryColor = primaryColor;
+        this.secondaryColor = secondaryColor;
+
+        this.controlledByBot = controlledByBot;
     }
 
     turnLeft(){
         if(this.previousPosition && this.previousPosition.x != this.x - CONSTANTS.PIXEL){
-            this.direction = CONSTANTS.DIRECTIONS.LEFT
+            this.requestedDirection = CONSTANTS.DIRECTIONS.LEFT;
         }
     }
     turnRight(){
         if(this.previousPosition && this.previousPosition.x != this.x + CONSTANTS.PIXEL){
-            this.direction = CONSTANTS.DIRECTIONS.RIGHT
+            this.requestedDirection = CONSTANTS.DIRECTIONS.RIGHT
         }
     }
     turnDown(){
         if(this.previousPosition && this.previousPosition.y != this.y + CONSTANTS.PIXEL){
-            this.direction = CONSTANTS.DIRECTIONS.DOWN
+            this.requestedDirection = CONSTANTS.DIRECTIONS.DOWN
         }
     }
     turnUp(){
         if(this.previousPosition && this.previousPosition.y != this.y - CONSTANTS.PIXEL){
-            this.direction = CONSTANTS.DIRECTIONS.UP
+            this.requestedDirection = CONSTANTS.DIRECTIONS.UP
         }
     }
 
@@ -47,10 +54,13 @@ class Player{
 
     hasCrashed(grid){
         if(this.x >= CONSTANTS.WIDTH || this.x < 0){
+            this.isDead = true
             return true
         }else if(this.y >= CONSTANTS.HEIGHT || this.y < 0){
+            this.isDead = true
             return true
         }else if (grid[this.x_pixel][this.y_pixel].isWall){
+            this.isDead = true
             return true
         }
         return false
@@ -58,7 +68,13 @@ class Player{
 
     updatePosition(){
         // Update previous position
-        this.previousPosition = {x: this.x, y: this.y}
+        this.previousPosition = {x: this.x, y: this.y};
+        this.previousDirection = this.direction;
+
+        // Update direction based on last request
+        if (this.direction != this.requestedDirection){
+            this.direction = this.requestedDirection;
+        }
 
         // Update player position based on direction
         if(this.direction == CONSTANTS.DIRECTIONS.UP){
@@ -77,6 +93,104 @@ class Player{
     }
 
     draw(ctx){
+        this.drawPlayer(ctx);
+        this.drawLine(ctx);
+        this.drawCorners(ctx);
+    }
+
+    drawLine(ctx){
+        let color1;
+        let color2;
+
+        // Draw previous position
+        if(this.previousPosition){
+
+            // Draw main lines
+            if(this.previousDirection == 0 || this.previousDirection == 2){
+                if(this.previousDirection == 0){
+                    color1 = this.primaryColor;
+                    color2 = this.secondaryColor;
+                } else{
+                    color1 = this.secondaryColor;
+                    color2 = this.primaryColor;
+                }
+                
+                ctx.fillStyle = color1;
+                ctx.fillRect(this.previousPosition.x, this.previousPosition.y, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL);
+                
+                ctx.fillStyle = color2;
+                ctx.fillRect(this.previousPosition.x+CONSTANTS.PIXEL_HALF, this.previousPosition.y, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL);
+            } else{
+                if(this.previousDirection == 1){
+                    color1 = this.primaryColor;
+                    color2 = this.secondaryColor;
+                } else{
+                    color1 = this.secondaryColor;
+                    color2 = this.primaryColor;
+                }
+
+                ctx.fillStyle = color1;
+                ctx.fillRect(this.previousPosition.x, this.previousPosition.y, CONSTANTS.PIXEL, CONSTANTS.PIXEL_HALF);
+                
+                ctx.fillStyle = color2;
+                ctx.fillRect(this.previousPosition.x, this.previousPosition.y+CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL, CONSTANTS.PIXEL_HALF);
+            }
+        }
+    }
+
+    drawCorners(ctx){
+        /* Fill in the little corners when turning */
+        if (this.previousDirection != this.direction){
+            // If turning left use secondary color, else primary color
+            if (this.isTurningLeft()){
+                ctx.fillStyle = this.secondaryColor;
+
+                switch(this.direction){
+                    case CONSTANTS.DIRECTIONS.UP:
+                        ctx.fillRect(this.previousPosition.x+CONSTANTS.PIXEL_HALF, this.previousPosition.y, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF);
+                        break;
+                    case CONSTANTS.DIRECTIONS.RIGHT:
+                        ctx.fillRect(this.previousPosition.x+CONSTANTS.PIXEL_HALF, this.previousPosition.y+CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF);
+                        break;
+                    case CONSTANTS.DIRECTIONS.DOWN:
+                        ctx.fillRect(this.previousPosition.x, this.previousPosition.y+CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF);
+                        break;
+                    case CONSTANTS.DIRECTIONS.LEFT:
+                        ctx.fillRect(this.previousPosition.x, this.previousPosition.y, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF);
+                        break;
+                }
+            } else{
+                ctx.fillStyle = this.primaryColor;
+
+                switch(this.direction){
+                    case CONSTANTS.DIRECTIONS.UP:
+                        ctx.fillRect(this.previousPosition.x, this.previousPosition.y, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF);
+                        break;
+                    case CONSTANTS.DIRECTIONS.RIGHT:
+                        ctx.fillRect(this.previousPosition.x+CONSTANTS.PIXEL_HALF, this.previousPosition.y, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF);
+                        break;
+                    case CONSTANTS.DIRECTIONS.DOWN:
+                        ctx.fillRect(this.previousPosition.x+CONSTANTS.PIXEL_HALF, this.previousPosition.y+CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF);
+                        break;
+                    case CONSTANTS.DIRECTIONS.LEFT:
+                        ctx.fillRect(this.previousPosition.x, this.previousPosition.y+CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF, CONSTANTS.PIXEL_HALF);
+                        break;
+                }
+            }
+        }
+    }
+
+    isTurningLeft(){
+        if ((this.direction == 3 && this.previousDirection == 0) || 
+        (this.direction == 2 && this.previousDirection == 3) ||
+        (this.direction == 1 && this.previousDirection == 2) ||
+        (this.direction == 0 && this.previousDirection == 1)){
+                return true
+            }
+            return false
+    }
+
+    drawPlayer(ctx){
         // Draw player
         let tip, corner1, corner2;
         if(this.direction == CONSTANTS.DIRECTIONS.UP){
@@ -97,19 +211,21 @@ class Player{
             corner2 = {x: this.x, y: this.y + CONSTANTS.PIXEL};
         }
 
-        ctx.fillStyle = this.playerColor
+        ctx.fillStyle = this.primaryColor
         ctx.beginPath()
         ctx.moveTo(tip.x, tip.y);
         ctx.lineTo(corner1.x, corner1.y);
         ctx.lineTo(corner2.x, corner2.y);
         ctx.closePath()
         ctx.fill();
+    }
 
-        // Draw previous position
-        if(this.previousPosition){
-            ctx.fillStyle = this.lineColor;
-            ctx.fillRect(this.previousPosition.x, this.previousPosition.y, CONSTANTS.PIXEL, CONSTANTS.PIXEL);
+    isOutsideGrid(x_pixel, y_pixel){
+        /* Returns true if x, y given are outside of the grid */
+        if (x_pixel < 0 || x_pixel >= CONSTANTS.WIDTH_CELLS || y_pixel < 0 || y_pixel >= CONSTANTS.HEIGHT_CELLS){
+            return true
         }
+        return false
     }
 }
 

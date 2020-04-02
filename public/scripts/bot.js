@@ -33,10 +33,6 @@ class Bot{
                 // Turn randomly if it does not result in a crash
                 dir = this.chooseDirection(grid, player);
                 willTurn = true;
-
-                // if (this.goingToCrash(grid, this.getNextCoordinates(player, dir)) == false){
-                //     willTurn = true;
-                // }
             }
         }
 
@@ -110,7 +106,7 @@ class Bot{
             let y = start_y + dir_coords[direction].y;
             
             // If first cell in turning direction is a wall it has a very height weight
-            if (this.isOutsideGrid(x, y) || grid[x][y].isWall){
+            if (player.isOutsideGrid(x, y) || grid[x][y].isWall){
                 weights[direction] = 1000000;
                 continue;
             }
@@ -139,7 +135,7 @@ class Bot{
                         }
 
                         // Add weight if there is an obstacle there based on how far away it is
-                        if (this.isOutsideGrid(x, y)){
+                        if (player.isOutsideGrid(x, y)){
                             weight += ((this.lineOfSightDepth - depth)*2 + (this.lineOfSightWidth - width)*2);
                         } else if (grid[x][y].isWall){
                             weight += ((this.lineOfSightDepth - depth)*2 + (this.lineOfSightWidth - width)*2);
@@ -154,14 +150,6 @@ class Bot{
 
         let idxMinWeight = weights.indexOf(Math.min(...weights));
         return this.coordinatesToDir(dir_coords[idxMinWeight]);
-    }
-
-    isOutsideGrid(x_pixel, y_pixel){
-        /* Returns true if x, y given are outside of the grid */
-        if (x_pixel < 0 || x_pixel >= CONSTANTS.WIDTH_CELLS || y_pixel < 0 || y_pixel >= CONSTANTS.HEIGHT_CELLS){
-            return true
-        }
-        return false
     }
 
     possibleDirections(dir){
