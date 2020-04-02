@@ -2,7 +2,7 @@ let CONSTANTS = {
     HEIGHT: 600,
     WIDTH: 800,
     PIXEL: 10,
-    FPS: 24,
+    FPS: 30,
     DIRECTIONS: {
         UP: 0, 
         RIGHT: 1,
