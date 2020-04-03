@@ -5,19 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crash light</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Super amazing crash clone (demo)!</h1>
+
+    <div class="container title">
+        <h1>Super amazing crash clone!</h1>
     </div>
-    <canvas id="gameCanvas"></canvas>
-    <div class="container">
-        <h2>Control player 1 with arrows. Control player 2 with WASD.</h2>
-        <h2>Start a 1 player game with "n" and a 2 player game with "m"</h2>
+
+    <div class="row main-area">
+        <!-- Game settings -->
+        <div class="col-sm">
+            <div id="avg"></div>
+        </div>
+        
+        <!-- Canvas -->
+        <div class="col-sm">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <!-- Console -->
+        <div class="col-sm">
+            <div id="chat-box" class="overflow-auto">
+                <div id="chat-box-text" class="overflow-hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Div for controls -->
+    <div class="container controls">
+        <div class="row">
+            <div class="col-sm">
+                <div class="row">
+                    <div class="col-sm key">
+                        <button class="btn btn-light shadow-none"><i class="fa fa-arrow-up"></i></button>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-2 key">
+                        <button class="btn btn-light shadow-none"><i class="fa fa-arrow-left"></i></button>
+                    </div>
+                    <div class="col-2 key">
+                        <button class="btn btn-light shadow-none"><i class="fa fa-arrow-down"></i></button>
+                    </div>
+                    <div class="col-2 key">
+                        <button class="btn btn-light shadow-none"><i class="fa fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm">
+                <div class="row">
+                    <div class="col-sm key">
+                        <button class="btn btn-light shadow-none">W</button>
+                    </div>
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-2 key">
+                        <button class="btn btn-light shadow-none">A</button>
+                    </div>
+                    <div class="col-2 key">
+                        <button class="btn btn-light shadow-none">S</button>
+                    </div>
+                    <div class="col-2 key">
+                        <button class="btn btn-light shadow-none">D</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm">
+                <div class="row">
+                    <div class="col-2 key">
+                        <button class="btn btn-light shadow-none">N</button>
+                    </div>
+                    <div class="col-sm">
+                        <h5>New game 1 player</h5>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-2 key">
+                        <button class="btn btn-light shadow-none">M</button>
+                    </div>
+                    <div class="col-sm">
+                        <h5>New game 2 players</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm"><h3>Player 1</h3></div>
+            <div class="col-sm"><h3>Player 2</h3></div>
+            <div class="col-sm"></div>
+        </div>
+
         <h3 id=textBox></h3>
     </div>
 
+    </div>
     <script type="module" src="/scripts/script.js"></script>
 </body>
 </html>

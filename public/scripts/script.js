@@ -23,7 +23,10 @@ ctx.canvas.width = CONSTANTS.WIDTH;
 ctx.canvas.height = CONSTANTS.HEIGHT;
 
 // Get elements
-let textBox = document.getElementById("textBox");
+let console = document.getElementById("chat-box-text");
+let avg = document.getElementById("avg");
+let map_usage = [];
+
 
 function startAnimating(fps) {
     requestID = undefined;
@@ -31,7 +34,6 @@ function startAnimating(fps) {
     fpsInterval = 1000 / fps;
     then = Date.now();
     startTime = then;
-    // animate();
     
     // request another frame
     if (!requestID){
@@ -40,9 +42,23 @@ function startAnimating(fps) {
 }
 
 function stopAnimating(){
+    // measureBotEffectiveness();
+    
     if(requestID){
         window.cancelAnimationFrame(requestID);
         requestID = undefined;
+    }
+}
+
+function measureBotEffectiveness(){
+    if (grid && requestID){
+        let tot = 0;
+        grid.forEach(arr => {
+            tot += arr.filter(cell => cell.isWall).length
+        })
+        map_usage.push(tot / (CONSTANTS.HEIGHT_CELLS * CONSTANTS.WIDTH_CELLS))
+        let arrAvg = map_usage.reduce((a,b) => a + b, 0) / map_usage.length
+        avg.innerText = Math.round(arrAvg * 100)
     }
 }
 
@@ -64,18 +80,24 @@ function updatePositions(){
     // Check collisions
     playersAlive.forEach(player => {
         if (player.hasCrashed(grid)){
-            textBox.innerText = (player.playerName + " just crashed!")
+            writeText((player.playerName + " just crashed!"))
         }
 
-        // TODO ADD CHECK WHEN PLAYER CRASHES WITH EACH OTHER
+        // Check collisions with other players
+        playersAlive.forEach(player2 =>{
+            if (player.playerCrashedWithPlayer(player2)){
+                writeText((player.playerName + " and " + player2.playerName + " sadly killed each other."))
+            }
+        })
     });
 
     // Count players still alive
+    playersAlive = players.filter((player) => player.isDead == false)
     if (playersAlive.length <= 1){
         if (playersAlive.length == 1){
-            textBox.innerText = (playersAlive[0].playerName + " won!")
+            writeText((playersAlive[0].playerName + " won!"))
         } else{
-            textBox.innerText = ("There can only be one winner..")
+            writeText(("There can only be one winner.."))
         }
 
         stopAnimating()
@@ -124,13 +146,10 @@ function init(){
 
     // Create players
     players = [];
-    players.push(new Player("Slayer", 100, 100, "#C2010E", "#ff4d00"));
+    players.push(new Player("Slayer", 100, 100, "#C2010E", "#ff4d00", true));
     players.push(new Player("Pruttfia", 700, 500, "#067021", "#2AE300", twoPlayers));
     players.push(new Player("Doomsday", 100, 500, "#2B1773", "#7D52D9", true));
     players.push(new Player("Söteknorr", 700, 100, "#FAD1CF", "#F5EBE2", true));
-
-    // Add keyListeners for players
-    addKeyListeners();
 
     // Create walls at starting positions for each player
     players.forEach(player => {
@@ -148,44 +167,62 @@ function startNewGame(startWithTwoPlayers){
     twoPlayers = startWithTwoPlayers
 
     stopAnimating();
-    textBox.innerText = "New game has begun!"
+    writeText("\nNew game has begun!")
     init();
     startAnimating(CONSTANTS.FPS);
+}
+
+function writeText(str){
+    let currentText = console.innerText;
+    console.innerText = currentText + "\n" + str;
 }
 
 // KEY LISTENERS
 function addKeyListeners(){
     window.addEventListener("keydown", (e)=>{
-        if(players.length > 0){
-            if(e.keyCode == 37){
+        if(e.keyCode == 37){
+            if(players.length > 0){
                 players[0].turnLeft()
-            } else if(e.keyCode == 38){
+            }
+        } else if(e.keyCode == 38){
+            if(players.length > 0){
                 players[0].turnUp()
-            } else if(e.keyCode == 39){
+            }
+        } else if(e.keyCode == 39){
+            if(players.length > 0){
                 players[0].turnRight()
-            } else if(e.keyCode == 40){
+            }
+        } else if(e.keyCode == 40){
+            if(players.length > 0){
                 players[0].turnDown()
-            } 
-        }
+            }
+        }        
         
-        if(twoPlayers){
-            if(e.keyCode == 65){
+        if(e.keyCode == 65){
+            if(twoPlayers){
                 players[1].turnLeft()
-            } else if(e.keyCode == 87){
+            }
+        } else if(e.keyCode == 87){
+            if(twoPlayers){
                 players[1].turnUp()
-            } else if(e.keyCode == 68){
+            }
+        } else if(e.keyCode == 68){
+            if(twoPlayers){
                 players[1].turnRight()
-            } else if(e.keyCode == 83){
+            }
+        } else if(e.keyCode == 83){
+            if(twoPlayers){
                 players[1].turnDown()
             }
         }
     })
     window.addEventListener("keyup", (e) =>{
         if(e.keyCode == 78){
-            startNewGame(false);
-        } else if(e.keyCode == 77){
             startNewGame(true);
+        } else if(e.keyCode == 77){
+            startNewGame(false);
         }
     })
 };
+
 addKeyListeners();

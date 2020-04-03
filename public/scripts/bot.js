@@ -5,7 +5,7 @@ class Bot{
         this.crash_evaluations = 1;
         this.randomness = 0.10;
         
-        this.lineOfSightDepth = 40;
+        this.lineOfSightDepth = 20;
         this.lineOfSightWidth = 5;
     }
 
@@ -99,6 +99,7 @@ class Bot{
 
         let weights = Array(dir_coords.length)
 
+        // Loop over possible directions to go
         for (let direction = 0; direction < dir_coords.length; direction++) {
             let weight = 0;
             let xIsDepth;
@@ -136,7 +137,7 @@ class Bot{
 
                         // Add weight if there is an obstacle there based on how far away it is
                         if (player.isOutsideGrid(x, y)){
-                            weight += ((this.lineOfSightDepth - depth)*2 + (this.lineOfSightWidth - width)*2);
+                            weight += ((this.lineOfSightDepth - depth)*1 + (this.lineOfSightWidth - width)*1);
                         } else if (grid[x][y].isWall){
                             weight += ((this.lineOfSightDepth - depth)*2 + (this.lineOfSightWidth - width)*2);
                         }
@@ -148,6 +149,7 @@ class Bot{
             weights[direction] = weight;
         };
 
+        // Choose direction with the least weight
         let idxMinWeight = weights.indexOf(Math.min(...weights));
         return this.coordinatesToDir(dir_coords[idxMinWeight]);
     }

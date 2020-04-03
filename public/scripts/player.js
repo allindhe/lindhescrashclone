@@ -44,15 +44,18 @@ class Player{
     }
 
     startDirection(){
-        if(this.x < CONSTANTS.WIDTH / 2){
+        if(this.x < CONSTANTS.WIDTH / 2 && this.y < CONSTANTS.HEIGHT / 2){
             return CONSTANTS.DIRECTIONS.RIGHT
         } else if (this.y < CONSTANTS.HEIGHT / 2){
             return CONSTANTS.DIRECTIONS.DOWN
+        } else if (this.x < CONSTANTS.WIDTH / 2 && this.y > CONSTANTS.HEIGHT / 2){
+            return CONSTANTS.DIRECTIONS.UP
         }
         return CONSTANTS.DIRECTIONS.LEFT
     }
 
     hasCrashed(grid){
+        /* Checks if vehicle has crashed with walls or bounary (not head on collisions) */
         if(this.x >= CONSTANTS.WIDTH || this.x < 0){
             this.isDead = true
             return true
@@ -64,6 +67,19 @@ class Player{
             return true
         }
         return false
+    }
+
+    playerCrashedWithPlayer(player2){
+        /* Checks player collisions */
+        if (this.playerName == player2.playerName){
+            return false
+        } else{
+            if(this.x_pixel == player2.x_pixel && this.y_pixel == player2.y_pixel){
+                this.isDead = true;
+                player2.isDead = true;
+                return true;
+            }
+        }
     }
 
     updatePosition(){
