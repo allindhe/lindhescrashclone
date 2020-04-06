@@ -73,6 +73,19 @@ h5{
     display: block;
 }
 
-/* div{
-    border: black 1px solid;
-} */
+.leaderboard{
+    display: none;
+}
+.leaderboard > div > div {
+    margin: 0;
+    padding: 0;
+}
+#first-place-icon{
+    color: #FFD700;
+}
+#second-place-icon{
+    color: #C0C0C0;
+}
+#third-place-icon{
+    color: #CD7F32;
+}

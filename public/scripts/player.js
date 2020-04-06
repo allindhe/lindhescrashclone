@@ -3,6 +3,18 @@ import {CONSTANTS} from "./constants.js";
 class Player{
     constructor(playerName, x, y, primaryColor, secondaryColor, controlledByBot=false){
         this.playerName = playerName;
+        
+        this.init(x, y);
+
+        this.primaryColor = primaryColor;
+        this.secondaryColor = secondaryColor;
+
+        this.controlledByBot = controlledByBot;
+
+        this.numberOfWins = 0;
+    }
+
+    init(x, y){
         this.isDead = false;
         
         this.x = x;
@@ -13,13 +25,8 @@ class Player{
 
         this.speed = 1 * CONSTANTS.PIXEL;
         this.direction = this.startDirection();
-        this.requestedDirection = this.direction
+        this.requestedDirection = this.direction;
         this.previousDirection = this.direction;
-
-        this.primaryColor = primaryColor;
-        this.secondaryColor = secondaryColor;
-
-        this.controlledByBot = controlledByBot;
     }
 
     turnLeft(){

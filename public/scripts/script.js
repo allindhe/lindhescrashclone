@@ -28,6 +28,13 @@ ctx.canvas.height = CONSTANTS.HEIGHT;
 
 // Get elements
 let console = document.getElementById("chat-box-text");
+let leaderboard = document.getElementsByClassName("leaderboard")[0];
+let firstPlaceName = document.getElementById("first-place-name");
+let firstPlaceScore = document.getElementById("first-place-score");
+let secondPlaceName = document.getElementById("second-place-name");
+let secondPlaceScore = document.getElementById("second-place-score");
+let thirdPlaceName = document.getElementById("third-place-name");
+let thirdPlaceScore = document.getElementById("third-place-score");
 
 function startAnimating(fps) {
     requestID = undefined;
@@ -46,6 +53,7 @@ function stopAnimating(){
     if(requestID){
         window.cancelAnimationFrame(requestID);
         requestID = undefined;
+        exit();
     }
 }
 
@@ -83,6 +91,7 @@ function updatePositions(){
     if (playersAlive.length <= 1){
         if (playersAlive.length == 1){
             writeText((playersAlive[0].playerName + " won!"))
+            playersAlive[0].numberOfWins += 1;
         } else{
             writeText(("There can only be one winner.."))
         }
@@ -134,18 +143,36 @@ function animate() {
     }
 }
 
+function updateLeaderBoard(){
+    let tmpArr = players.slice().sort((a, b) => b.numberOfWins - a.numberOfWins);
+
+    leaderboard.style.display = "block"
+    firstPlaceName.innerText = tmpArr[0].playerName;
+    firstPlaceScore.innerText = tmpArr[0].numberOfWins;
+    secondPlaceName.innerText = tmpArr[1].playerName;
+    secondPlaceScore.innerText = tmpArr[1].numberOfWins;
+    thirdPlaceName.innerText = tmpArr[2].playerName;
+    thirdPlaceScore.innerText = tmpArr[2].numberOfWins;
+}
+
 // INIT FUNCTION
 function init(){
     // Clear canvas and setup grid
     ctx.clearRect(0, 0, CONSTANTS.WIDTH, CONSTANTS.HEIGHT);
     grid = makeGrid();
 
-    // Create players
-    players = [];
-    players.push(new Player("Slayer", 100, 100, "#C2010E", "#ff4d00"));
-    players.push(new Player("Pruttfia", 700, 500, "#067021", "#2AE300", twoPlayers));
-    players.push(new Player("Doomsday", 100, 500, "#2B1773", "#7D52D9", true));
-    players.push(new Player("Söteknorr", 700, 100, "#FAD1CF", "#F5EBE2", true));
+    // Create players / reset player positions
+    if (players.length == 0){
+        players.push(new Player("Slayer", 100, 100, "#C2010E", "#ff4d00"));
+        players.push(new Player("Pruttfia", 700, 500, "#067021", "#2AE300", twoPlayers));
+        players.push(new Player("Doomsday", 100, 500, "#2B1773", "#7D52D9", true));
+        players.push(new Player("Söteknorr", 700, 100, "#FAD1CF", "#F5EBE2", true));
+    } else {
+        players[0].init(100, 100);
+        players[1].init(700, 500);
+        players[2].init(100, 500);
+        players[3].init(700, 100);
+    }
 
     // Create walls at starting positions for each player
     players.forEach(player => {
@@ -156,6 +183,11 @@ function init(){
     players.forEach(player => {
         player.draw(ctx);
     });
+}
+
+// EXIT FUNCTION
+function exit(){
+    updateLeaderBoard();
 }
 
 // START A NEW GAME
