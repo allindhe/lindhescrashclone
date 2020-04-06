@@ -87,6 +87,8 @@ function updatePositions(){
             writeText(("There can only be one winner.."))
         }
 
+        // Draw last frame and stop the animation
+        draw()
         stopAnimating()
         return;
     }
