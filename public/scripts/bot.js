@@ -2,12 +2,12 @@ import {CONSTANTS} from "./constants.js";
 
 class Bot{
     constructor(){
-        this.randomness = 0.03;
+        this.randomness = 0.02;
         this.smartRandom = true; // smart uses DFS instead of random turn at randomness
 
-        this.maxDepthDFS = 500;
+        this.maxDepthDFS = 750;
         
-        this.lineOfSightDepth = 2;
+        this.lineOfSightDepth = 3;
         this.lineOfSightWidth = 1;
     }
 
@@ -152,10 +152,6 @@ class Bot{
             if (depthPattern.includes("101")) {
                 return true;
             } 
-            // Potentially another player
-            if (depthPattern.includes("010") || depthPattern.includes("11")){
-                return true;
-            }
         };
 
         // No danger found
@@ -204,10 +200,10 @@ class Bot{
             if (player.isOutsideGrid(x, y) || grid[x][y].isWall){
                 depth = 0;
             } else{
-                depth = this.depthFirstSearch(grid, visited, x, y, player);
+                visited = this.depthFirstSearch(grid, visited, x, y, player);
             }
 
-            depths[direction] = depth;
+            depths[direction] = visited.size;
 
             // If we found a max recursion already there's no need to search again
             if (depth == this.maxDepthDFS){
@@ -225,7 +221,7 @@ class Bot{
         visited.add(this.coordToString(x, y))
 
         if (depth >= this.maxDepthDFS){
-            return this.maxDepthDFS
+            return visited
         }
         
         // Check adjacent tiles
@@ -239,11 +235,11 @@ class Bot{
             } else if (player.isOutsideGrid(x_new, y_new) || grid[x_new][y_new].isWall){
                 continue;
             } else{
-                depth = this.depthFirstSearch(grid, visited, x_new, y_new, player, depth)
+                visited = this.depthFirstSearch(grid, visited, x_new, y_new, player, depth)
             }
         }
 
-        return depth;
+        return visited;
     }
 
     possibleDirections(dir){
