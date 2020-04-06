@@ -42,7 +42,7 @@ function startAnimating(fps) {
 }
 
 function stopAnimating(){
-    // measureBotEffectiveness();
+    measureBotEffectiveness();
     
     if(requestID){
         window.cancelAnimationFrame(requestID);
@@ -93,7 +93,7 @@ function updatePositions(){
 
     // Count players still alive
     playersAlive = players.filter((player) => player.isDead == false)
-    if (playersAlive.length <= 1){
+    if (playersAlive.length < 1){
         if (playersAlive.length == 1){
             writeText((playersAlive[0].playerName + " won!"))
         } else{
@@ -146,7 +146,7 @@ function init(){
 
     // Create players
     players = [];
-    players.push(new Player("Slayer", 100, 100, "#C2010E", "#ff4d00"));
+    players.push(new Player("Slayer", 100, 100, "#C2010E", "#ff4d00", true));
     players.push(new Player("Pruttfia", 700, 500, "#067021", "#2AE300", twoPlayers));
     players.push(new Player("Doomsday", 100, 500, "#2B1773", "#7D52D9", true));
     players.push(new Player("Söteknorr", 700, 100, "#FAD1CF", "#F5EBE2", true));

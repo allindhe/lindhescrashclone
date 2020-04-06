@@ -2,11 +2,13 @@ import {CONSTANTS} from "./constants.js";
 
 class Bot{
     constructor(){
-        this.crash_evaluations = 1;
-        this.randomness = 0.10;
+        this.randomness = 0.03;
+        this.smartRandom = true; // smart uses DFS instead of random turn at randomness
+
+        this.maxDepthDFS = 500;
         
-        this.lineOfSightDepth = 20;
-        this.lineOfSightWidth = 5;
+        this.lineOfSightDepth = 2;
+        this.lineOfSightWidth = 1;
     }
 
     botMove(grid, player){
@@ -15,14 +17,17 @@ class Bot{
         let willTurn = false;
 
         // Evaluate if we need to turn to avoid a crash
-        for(let i = 0; i < this.crash_evaluations; i++){
-            next_coords = this.getNextCoordinates(player, dir);
-            
-            if(this.goingToCrash(grid, next_coords)){
-                dir = this.chooseDirection(grid, player);
+        next_coords = this.getNextCoordinates(player, dir);
+        if(this.goingToCrash(grid, next_coords)){
+            dir = this.chooseDirection_DFS(grid, player);
+            willTurn = true;
+        }
+
+        // Look ahead for potential dangers
+        if (willTurn == false){
+            if (this.foresightDanger(grid, player)){
+                dir = this.chooseDirection_DFS(grid, player);
                 willTurn = true;
-            } else{
-                break;
             }
         }
 
@@ -31,8 +36,16 @@ class Bot{
             let rand_num = Math.random();
             if (rand_num < this.randomness){
                 // Turn randomly if it does not result in a crash
-                dir = this.chooseDirection(grid, player);
-                willTurn = true;
+                if (this.smartRandom){
+                    dir = this.chooseDirection_DFS(grid, player);
+                }else {
+                    dir = this.randomDirection(grid, player);
+                }
+
+                next_coords = this.getNextCoordinates(player, dir);
+                if(this.goingToCrash(grid, next_coords) == false){
+                    willTurn = true;
+                }
             }
         }
 
@@ -78,6 +91,7 @@ class Bot{
     }
 
     randomDirection(){
+        /* Returns a random direction */
         let rand_num = Math.floor(Math.random() * 4);
         switch(rand_num){
             case 0:
@@ -91,67 +105,145 @@ class Bot{
         }
     }
 
-    chooseDirection(grid, player){
-        /* The bot tries to choose the best direction to turn */
+    foresightDanger(grid, player){
+        /* Returns true if potential dangers are spotted ahead */
         let start_x = player.x_pixel;
         let start_y = player.y_pixel;
-        let dir_coords = this.possibleDirections(player.direction);
+        let dir_coord = this.dirToCoordinates(player.direction);
+    
+        let xIsDepth;
+        let x = start_x + dir_coord.x;
+        let y = start_y + dir_coord.y;
+        
+        // See if depth is left/right or up/down
+        if (dir_coord.x == 0){
+            xIsDepth = false;
+        } else{
+            xIsDepth = true;
+        }
+        
+        // Look for dangerous situations up ahead
+        for(let depth = 1; depth <= this.lineOfSightDepth; depth++){
+            let depthPattern = "";
+            
+            if (xIsDepth){
+                x = start_x + dir_coord.x * depth;
+            } else{
+                y = start_y + dir_coord.y * depth;
+            }
 
-        let weights = Array(dir_coords.length)
+            for(let width = -this.lineOfSightWidth; width <= this.lineOfSightWidth; width++){
+                if (xIsDepth){
+                    y = start_y + width;
+                } else{
+                    x = start_x + width;
+                }
+
+                // Add a 0 for no wall and 1 for wall in the pattern
+                if (player.isOutsideGrid(x, y) || grid[x][y].isWall){
+                    depthPattern += "1"
+                } else{
+                    depthPattern += "0"
+                }
+            }
+
+            // Look for dangers in pattern
+            // Single slot
+            if (depthPattern.includes("101")) {
+                return true;
+            } 
+            // Potentially another player
+            if (depthPattern.includes("010") || depthPattern.includes("11")){
+                return true;
+            }
+        };
+
+        // No danger found
+        return false;
+    }
+
+    coordToString(x, y){
+        return x.toString() + ";" + y.toString()
+    }
+
+    shuffleArray(arr){
+        let currentIdx = arr.length;
+        let randomIdx;
+        let tmpValue;
+
+        while (currentIdx > 0) {
+            randomIdx = Math.floor(Math.random() * currentIdx);
+            currentIdx--;
+
+            tmpValue = arr[currentIdx];
+            arr[currentIdx] = arr[randomIdx];
+            arr[randomIdx] = tmpValue;
+        }
+
+        return arr;
+    }
+
+    chooseDirection_DFS(grid, player){
+        /* The bot tries to choose the best direction to turn by using depth first search */
+        let start_x = player.x_pixel;
+        let start_y = player.y_pixel;
+
+        // Shuffle array of possible directions to turn to get a more random behaviour
+        let dir_coords = this.shuffleArray(this.possibleDirections(player.direction));
+        let depths = new Array(dir_coords.length).fill(0);
 
         // Loop over possible directions to go
         for (let direction = 0; direction < dir_coords.length; direction++) {
-            let weight = 0;
-            let xIsDepth;
+            let depth;
+            let visited = new Set();
+            visited.add(this.coordToString(start_x, start_y));            
+
             let x = start_x + dir_coords[direction].x;
             let y = start_y + dir_coords[direction].y;
-            
-            // If first cell in turning direction is a wall it has a very height weight
+
             if (player.isOutsideGrid(x, y) || grid[x][y].isWall){
-                weights[direction] = 1000000;
-                continue;
-            }
-            
-            // See if depth is left/right or up/down
-            if (dir_coords[direction].x == 0){
-                xIsDepth = false;
+                depth = 0;
             } else{
-                xIsDepth = true;
+                depth = this.depthFirstSearch(grid, visited, x, y, player);
             }
+
+            depths[direction] = depth;
+
+            // If we found a max recursion already there's no need to search again
+            if (depth == this.maxDepthDFS){
+                break;
+            }
+        }
+
+        // Choose direction with the maximum depth in DFS
+        let idxMaxDepth = depths.indexOf(Math.max(...depths));
+        return this.coordinatesToDir(dir_coords[idxMaxDepth]);
+    }
+
+    depthFirstSearch(grid, visited, x, y, player, depth=0){
+        depth++;
+        visited.add(this.coordToString(x, y))
+
+        if (depth >= this.maxDepthDFS){
+            return this.maxDepthDFS
+        }
+        
+        // Check adjacent tiles
+        let adjacent_coords = [{dx: -1, dy: 0}, {dx: 1, dy: 0}, {dx: 0, dy: -1}, {dx: 0, dy: 1}]
+        for (let idx = 0; idx < adjacent_coords.length; idx++){
+            let x_new = x + adjacent_coords[idx].dx;
+            let y_new = y + adjacent_coords[idx].dy;
             
-            // Calculate weight based on how many walls there are within the line of sight in each direction
-            for(let depth = 1; depth <= this.lineOfSightDepth; depth++){
-                if (xIsDepth){
-                    x = start_x + dir_coords[direction].x * depth;
-                } else{
-                    y = start_y + dir_coords[direction].y * depth;
-                }
-
-                for(let width = 0; width <= this.lineOfSightWidth; width++){
-                    for(let width_side = -1; width_side <= 1; width_side += 2){
-                        if (xIsDepth){
-                            y = start_y + width * width_side;
-                        } else{
-                            x = start_x + width * width_side;
-                        }
-
-                        // Add weight if there is an obstacle there based on how far away it is
-                        if (player.isOutsideGrid(x, y)){
-                            weight += ((this.lineOfSightDepth - depth)*1 + (this.lineOfSightWidth - width)*1);
-                        } else if (grid[x][y].isWall){
-                            weight += ((this.lineOfSightDepth - depth)*2 + (this.lineOfSightWidth - width)*2);
-                        }
-                    }
-                }
+            if (visited.has(this.coordToString(x_new, y_new))){
+                continue;
+            } else if (player.isOutsideGrid(x_new, y_new) || grid[x_new][y_new].isWall){
+                continue;
+            } else{
+                depth = this.depthFirstSearch(grid, visited, x_new, y_new, player, depth)
             }
+        }
 
-            // Set weight to the current direction
-            weights[direction] = weight;
-        };
-
-        // Choose direction with the least weight
-        let idxMinWeight = weights.indexOf(Math.min(...weights));
-        return this.coordinatesToDir(dir_coords[idxMinWeight]);
+        return depth;
     }
 
     possibleDirections(dir){
