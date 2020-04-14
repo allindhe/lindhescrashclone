@@ -73,9 +73,6 @@ h5{
     display: block;
 }
 
-.leaderboard{
-    display: none;
-}
 .leaderboard > div > div {
     margin: 0;
     padding: 0;
@@ -88,4 +85,23 @@ h5{
 }
 #third-place-icon{
     color: #CD7F32;
+}
+
+.space{
+    padding-top: 10px;
+}
+
+.toggle-settings:hover{
+    color: rgb(175, 180, 196)
+}
+#settings{
+    -webkit-transition: opacity 600ms, visibility 600ms;
+    transition: opacity 600ms, visibility 600ms;
+}
+.settings-hidden{
+    visibility: hidden;
+    opacity: 0;
+}
+.settings-buttons {
+    width: 100%;
 }

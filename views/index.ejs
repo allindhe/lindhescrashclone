@@ -39,9 +39,101 @@
                 </div>
             </div>
 
-
             <!-- Game settings -->
+            <div class="row space"></div>
+            <div class="row space"></div>
+            <div class="row">
+                <h4>Settings <i class="fas fa-cog fa-sm toggle-settings"></i></h4>
+            </div>
 
+            <div id="settings" class="settings-hidden">
+                <!-- Map size -->
+                <div class="row">
+                    <h6>Map size</h6>
+                </div>
+                <div class="row btn-group btn-group-toggle settings-buttons map-size-group" data-toggle="buttons" role="group" aria-label="Map size">
+                    <label class="btn btn-dark">
+                        <input type="radio" name="map-size" id="map-size-S" checked value=0> <i class="far fa-circle fa-xs"></i>
+                    </label>
+                    <label class="btn btn-dark active">
+                        <input type="radio" name="map-size" id="map-size-M" checked value=1> <i class="fas fa-dot-circle fa-sm"></i>
+                    </label>
+                    <label class="btn btn-dark">
+                        <input type="radio" name="map-size" id="map-size-L" checked value=2> <i class="fas fa-circle"></i>
+                    </label>
+                </div>
+
+                <!-- Game speed -->
+                <div class="row space"></div>
+                <div class="row">
+                    <h6>Game speed</h6>
+                </div>
+                <div class="row btn-group btn-group-toggle settings-buttons game-speed-group" data-toggle="buttons" role="group" aria-label="Game speed">
+                    <label class="btn btn-dark">
+                        <input type="radio" name="game-speed" id="game-speed-slow" checked value=0> <i class="far fa-snowflake"></i>
+                    </label>
+                    <label class="btn btn-dark active">
+                        <input type="radio" name="game-speed" id="game-speed-normal" checked value=1> <i class="fas fa-cloud"></i>
+                    </label>
+                    <label class="btn btn-dark">
+                        <input type="radio" name="game-speed" id="game-speed-fast" checked value=2> <i class="fas fa-sun"></i>
+                    </label>
+                </div>
+
+                <!-- AI -->
+                <div class="row space"></div>
+                <div class="row">
+                    <h5>AI difficulty</h5>
+                </div>
+
+                <div class="row space"></div>
+                <div class="row">
+                    <h6>Pruttfia</h6>
+                </div>
+                <div class="row btn-group btn-group-toggle settings-buttons difficulty-pruttfia-group" data-toggle="buttons" role="group" aria-label="Difficulty">
+                    <label class="btn btn-dark">
+                        <input type="radio" name="difficulty-pruttfia" id="difficulty-pruttfia-easy" checked value=0> <i class="fas fa-baby"></i>
+                    </label>
+                    <label class="btn btn-dark active">
+                        <input type="radio" name="difficulty-pruttfia" id="difficulty-pruttfia-medium" checked value=1> <i class="fas fa-child"></i>
+                    </label>
+                    <label class="btn btn-dark">
+                        <input type="radio" name="difficulty-pruttfia" id="difficulty-pruttfia-hard" checked value=2> <i class="fas fa-skull-crossbones"></i>
+                    </label>
+                </div>
+
+                <div class="row space"></div>
+                <div class="row">
+                    <h6>Doomsday</h6>
+                </div>
+                <div class="row btn-group btn-group-toggle settings-buttons difficulty-doomsday-group" data-toggle="buttons" role="group" aria-label="Difficulty">
+                    <label class="btn btn-dark">
+                        <input type="radio" name="difficulty-doomsday" id="difficulty-doomsday-easy" checked value=0> <i class="fas fa-baby"></i>
+                    </label>
+                    <label class="btn btn-dark active">
+                        <input type="radio" name="difficulty-doomsday" id="difficulty-doomsday-medium" checked value=1> <i class="fas fa-child"></i>
+                    </label>
+                    <label class="btn btn-dark">
+                        <input type="radio" name="difficulty-doomsday" id="difficulty-doomsday-hard" checked value=2> <i class="fas fa-skull-crossbones"></i>
+                    </label>
+                </div>
+
+                <div class="row space"></div>
+                <div class="row">
+                    <h6>Söteknorr</h6>
+                </div>
+                <div class="row btn-group btn-group-toggle settings-buttons difficulty-soteknorr-group" data-toggle="buttons" role="group" aria-label="Difficulty">
+                    <label class="btn btn-dark">
+                        <input type="radio" name="difficulty-soteknorr" id="difficulty-soteknorr-easy" checked value=0> <i class="fas fa-baby"></i>
+                    </label>
+                    <label class="btn btn-dark active">
+                        <input type="radio" name="difficulty-soteknorr" id="difficulty-soteknorr-medium" checked value=1> <i class="fas fa-child"></i>
+                    </label>
+                    <label class="btn btn-dark">
+                        <input type="radio" name="difficulty-soteknorr" id="difficulty-soteknorr-hard" checked value=2> <i class="fas fa-skull-crossbones"></i>
+                    </label>
+                </div>
+            </div>
         </div>
         
         <!-- Canvas -->
@@ -125,6 +217,10 @@
     </div>
 
     </div>
+
     <script type="module" src="/scripts/script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </body>
 </html>

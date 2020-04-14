@@ -1,24 +1,26 @@
 import {CONSTANTS} from "./constants.js";
 
 class Player{
-    constructor(playerName, x, y, primaryColor, secondaryColor, controlledByBot=false){
+    constructor(id, playerName, x, y, primaryColor, secondaryColor, controlledByBot=null){
+        this.id = id;
         this.playerName = playerName;
         
-        this.init(x, y);
+        this.init(x, y, controlledByBot);
 
         this.primaryColor = primaryColor;
         this.secondaryColor = secondaryColor;
 
-        this.controlledByBot = controlledByBot;
-
         this.numberOfWins = 0;
+
+        this.controlledByBot = controlledByBot;
     }
 
     init(x, y){
         this.isDead = false;
         
-        this.x = x;
-        this.y = y;
+        this.x = this.getValidStartingCoordinate(x);
+        this.y = this.getValidStartingCoordinate(y);
+
         this.x_pixel = this.x / CONSTANTS.PIXEL;
         this.y_pixel = this.y / CONSTANTS.PIXEL;
         this.previousPosition = null;
@@ -27,6 +29,16 @@ class Player{
         this.direction = this.startDirection();
         this.requestedDirection = this.direction;
         this.previousDirection = this.direction;
+    }
+
+    getValidStartingCoordinate(coord){
+        while(coord % CONSTANTS.PIXEL != 0){
+            coord -= 1;
+            if (coord < 0){
+                throw "Runtime error";
+            }
+        }
+        return coord;
     }
 
     turnLeft(){

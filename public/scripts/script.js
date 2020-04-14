@@ -1,6 +1,6 @@
 // IMPORTS
 import {CONSTANTS} from "/scripts/constants.js";
-import {makeGrid} from "/scripts/map.js";
+import {map} from "/scripts/map.js";
 import {Player} from "/scripts/player.js";
 import {Bot} from "/scripts/bot.js";
 
@@ -16,9 +16,14 @@ let elapsed;
 let updatedPositionCounter = 0
 let animationCounter = 1;
 
-let bot = new Bot();
 let requestID;
 let twoPlayers = false;
+
+let mapSize = 1;
+let gameSpeed = 1;
+let difficultyPruttfia = 1;
+let difficultyDoomsday = 1;
+let difficultySoteknorr = 1;
 
 // Get context and scale
 let c = document.getElementById("gameCanvas");
@@ -26,8 +31,8 @@ let ctx = c.getContext("2d");
 ctx.canvas.width = CONSTANTS.WIDTH;
 ctx.canvas.height = CONSTANTS.HEIGHT;
 
-// Get elements
-let console = document.getElementById("chat-box-text");
+// Get html elements
+let chatBox = document.getElementById("chat-box-text");
 let leaderboard = document.getElementsByClassName("leaderboard")[0];
 let firstPlaceName = document.getElementById("first-place-name");
 let firstPlaceScore = document.getElementById("first-place-score");
@@ -64,8 +69,12 @@ function updatePositions(){
     // Update player positions
     playersAlive.forEach(player => {
         // Bot moves when active
-        if (player.controlledByBot) {
-            bot.botMove(grid, player);
+        if (player.controlledByBot != null) {
+            if (twoPlayers && player.id == 1) {
+                // Don't move player 2 if it's a 2-player game
+            } else{
+                player.controlledByBot.botMove(grid, player);
+            }
         }
 
         // Update player position
@@ -107,6 +116,11 @@ function updatePositions(){
     playersAlive.forEach(player => {
         grid[player.x_pixel][player.y_pixel].isWall = true;
     });
+
+    // If no human players are left, increase game speed
+    if (players[0].isDead && (!twoPlayers || players[1].isDead)){
+        fpsInterval = 2;
+    }
 }
 
 function draw(){
@@ -146,7 +160,6 @@ function animate() {
 function updateLeaderBoard(){
     let tmpArr = players.slice().sort((a, b) => b.numberOfWins - a.numberOfWins);
 
-    leaderboard.style.display = "block"
     firstPlaceName.innerText = tmpArr[0].playerName;
     firstPlaceScore.innerText = tmpArr[0].numberOfWins;
     secondPlaceName.innerText = tmpArr[1].playerName;
@@ -157,22 +170,31 @@ function updateLeaderBoard(){
 
 // INIT FUNCTION
 function init(){
+    // Set map size and game speed
+    map.setMapSize(mapSize);
+    map.setGameSpeed(gameSpeed);
+
     // Clear canvas and setup grid
     ctx.clearRect(0, 0, CONSTANTS.WIDTH, CONSTANTS.HEIGHT);
-    grid = makeGrid();
+    grid = map.makeGrid();
 
     // Create players / reset player positions
     if (players.length == 0){
-        players.push(new Player("Slayer", 100, 100, "#C2010E", "#ff4d00"));
-        players.push(new Player("Pruttfia", 700, 500, "#067021", "#2AE300", twoPlayers));
-        players.push(new Player("Doomsday", 100, 500, "#2B1773", "#7D52D9", true));
-        players.push(new Player("Söteknorr", 700, 100, "#FAD1CF", "#F5EBE2", true));
+        players.push(new Player(0, "Slayer", 100, 100, "#C2010E", "#ff4d00"));
+        players.push(new Player(1, "Pruttfia", 700, 500, "#067021", "#2AE300", new Bot()));
+        players.push(new Player(2, "Doomsday", 100, 500, "#2B1773", "#7D52D9", new Bot()));
+        players.push(new Player(3, "Söteknorr", 700, 100, "#FAD1CF", "#F5EBE2", new Bot()));
     } else {
         players[0].init(100, 100);
         players[1].init(700, 500);
         players[2].init(100, 500);
         players[3].init(700, 100);
     }
+
+    // Set bot difficulties
+    players[1].controlledByBot.setDifficulty(difficultyPruttfia);
+    players[2].controlledByBot.setDifficulty(difficultyDoomsday);
+    players[3].controlledByBot.setDifficulty(difficultySoteknorr);
 
     // Create walls at starting positions for each player
     players.forEach(player => {
@@ -191,9 +213,7 @@ function exit(){
 }
 
 // START A NEW GAME
-function startNewGame(startWithTwoPlayers){
-    twoPlayers = startWithTwoPlayers
-
+function startNewGame(){
     stopAnimating();
     writeText("\nNew game has begun!")
     init();
@@ -201,56 +221,78 @@ function startNewGame(startWithTwoPlayers){
 }
 
 function writeText(str){
-    let currentText = console.innerText;
-    console.innerText = currentText + "\n" + str;
+    let currentText = chatBox.innerText;
+    chatBox.innerText = currentText + "\n" + str;
 }
 
 // KEY LISTENERS
 function addKeyListeners(){
     window.addEventListener("keydown", (e)=>{
         if(e.keyCode == 37){
-            if(players.length > 0){
-                players[0].turnLeft()
-            }
+            players[0].turnLeft();
+            e.preventDefault();
         } else if(e.keyCode == 38){
-            if(players.length > 0){
-                players[0].turnUp()
-            }
+            players[0].turnUp();
+            e.preventDefault();
         } else if(e.keyCode == 39){
-            if(players.length > 0){
-                players[0].turnRight()
-            }
+            players[0].turnRight();
+            e.preventDefault();
         } else if(e.keyCode == 40){
-            if(players.length > 0){
-                players[0].turnDown()
-            }
+            players[0].turnDown();
+            e.preventDefault();
         }        
         
-        if(e.keyCode == 65){
-            if(twoPlayers){
+        if(e.keyCode == 65){  // a
+            if (twoPlayers){
                 players[1].turnLeft()
             }
-        } else if(e.keyCode == 87){
-            if(twoPlayers){
+        } else if(e.keyCode == 87){  // w
+            if (twoPlayers){
                 players[1].turnUp()
             }
-        } else if(e.keyCode == 68){
-            if(twoPlayers){
+        } else if(e.keyCode == 68){  // d
+            if (twoPlayers){
                 players[1].turnRight()
             }
-        } else if(e.keyCode == 83){
-            if(twoPlayers){
+        } else if(e.keyCode == 83){  // s
+            if (twoPlayers){
                 players[1].turnDown()
             }
         }
     })
     window.addEventListener("keyup", (e) =>{
-        if(e.keyCode == 78){
-            startNewGame(true);
-        } else if(e.keyCode == 77){
-            startNewGame(false);
+        if(e.keyCode == 78){  // n
+            twoPlayers = false;
+            startNewGame();
+        } else if(e.keyCode == 77){  // m
+            twoPlayers = true;
+            startNewGame();
         }
     })
+
+    // Toggle settings
+    $(".toggle-settings").on("click", function(){
+        $("#settings").toggleClass("settings-hidden");
+    });
+
+    // Map size and game speed
+    $(".map-size-group > label").on("click", function(){
+        mapSize = $(this).find('input').val();
+    });
+    $(".game-speed-group > label").on("click", function(){
+        gameSpeed = $(this).find('input').val();
+    });
+
+    // Bot difficulty
+    $(".difficulty-pruttfia-group > label").on("click", function(){
+        difficultyPruttfia = $(this).find('input').val();
+    });
+    $(".difficulty-doomsday-group > label").on("click", function(){
+        difficultyDoomsday = $(this).find('input').val();
+    });
+    $(".difficulty-soteknorr-group > label").on("click", function(){
+        difficultySoteknorr = $(this).find('input').val();
+    });
 };
 
 addKeyListeners();

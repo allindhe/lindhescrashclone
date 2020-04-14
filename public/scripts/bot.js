@@ -11,6 +11,27 @@ class Bot{
         this.lineOfSightWidth = 1;
     }
 
+    setDifficulty(difficulty){
+        console.log(difficulty)
+        switch (difficulty){
+            case "0":
+                this.randomness = 0.1;
+                this.smartRandom = false;
+                this.maxDepthDFS = 100;
+                break;
+            case "1":
+                this.randomness = 0.02;
+                this.smartRandom = true;
+                this.maxDepthDFS = 500;
+                break;
+            case "2":
+                this.randomness = 0.005;
+                this.smartRandom = true;
+                this.maxDepthDFS = 750;
+                break;
+        }
+    }
+
     botMove(grid, player){
         let next_coords;
         let dir = player.direction;
