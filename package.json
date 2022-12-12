@@ -18,6 +18,6 @@
   "homepage": "https://github.com/allindhe/lindhescrashclone#readme",
   "dependencies": {
     "ejs": "^3.0.2",
-    "express": "^4.17.1"
+    "express": "^4.17.3"
   }
 }
